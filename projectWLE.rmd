@@ -23,9 +23,7 @@ what I think the expected out of sample error is, and why I made the choices I d
 The process for prediction is: population -> probability and sampling to pick set of data ->
 split into training and validation sets -> build prediction models -> evaluate and decide for one model -> predict outcome using the test set
 
-# out of sample error = error resulted from applying your prediction algorithm to a new data set
-
-# 0. Pick set of data
+# 1. Pick set of data
 The sample data sets are stored in two files. Read all the files into appropriate data frames
 
 First check if file exists (assume the folder with the data sets is in the same directory as this script)
@@ -38,40 +36,38 @@ if (!file.exists("pml-training.csv")) {
 read files and load datasets
 ```{r}
 wleTrain <- read.csv("pml-training.csv")
-```
-the training set has 19622 obs. (rows) of 160 variables (columns)
-```{r}
 wleTest <- read.csv("pml-testing.csv")
 ```
+the training set has 19622 obs. (rows) of 160 variables (columns)
 the testing set has 20 obs (rows)
 
-This is not really necessary bu I like to rename the first column from "X" to a meaningful name
+This is not really necessary bu I like to rename the first column from "X" to a meaningful name:
 
 ```{r}
 colnames(wleTrain)[1] <- "ID"  
 ```
 
-# 1. do some exploratory data analyses = look for outliers, skewness, imbalances in outcome/predictors
+# 2. do some exploratory data analyses = look for outliers, skewness, imbalances in outcome/predictors
 ```{r, echo=FALSE}
 summary(wleTrain)
 library(ggplot2)
 qplot(user_name, classe, data=wleTrain)
 ```
 
-# 2. features extraction
+# 3. features extraction
 We need to identify the useful predictors among the 160 variables, depending on the question we want to answer:
 predict the manner the exercise has been performed.
-Since the original test set is always available in the files, I will just drop columns from the data frames,
-both training and testing of course; they need to have the same structure.
+Since the original test set is always available in the files, I will just drop columns from the data frames;
+both training and testing of course, they need to have the same structure.
 
-First of all, it's clear from the summary above that the first six variables have no values.
+First of all, it's clear from the summary above that the first six variables have no use:
 ```{r}
 library(caret)
 wleTrain <- wleTrain[,7:length(colnames(wleTrain))]
 wleTest  <- wleTest[,7:length(colnames(wleTest))]
 ```
 
-Then, let's drop variables which have a variance near zero meaining they don't provide enough value for predictions
+Then, let's drop variables which have a variance near zero meaining they don't provide enough value for predictions:
 
 ```{r}
 nzv <- nearZeroVar(wleTrain, saveMetrics=TRUE) # index of variables with near zero variance
@@ -81,7 +77,8 @@ wleTrain <- wleTrain[!(names(wleTrain) %in% rownames(nzvTrue))]
 wleTest  <- wleTest[!(names(wleTest) %in% rownames(nzvTrue))]
 ```
 
-From the summary above, some variables have missing values. We could substitute them with the average for
+From the summary above, some variables have missing values (NA). 
+We could substitute them with the average for
 that variable but there are many missing values and this is not improving the model accuracy (I tried).
 Instead of less-accurate imputation of missing data, I just remove all variables with NA values.
 Hard but fair ...
@@ -98,14 +95,14 @@ library(corrplot)
 corrplot(corMatrix, order="AOE", method="color", tl.cex=0.6)
 ```
 
-It looks like there are several correlated predictors; I will remove the ones with high correlation
+It looks like there are several correlated predictors; I will remove the ones with high correlation:
 ```{r}
 highCorrelation <- findCorrelation(corMatrix, cutoff = .7, verbose = FALSE) # 22 predictors found
 wleTest  <- wleTest[,-highCorrelation]
 wleTrain <- wleTrain[,-highCorrelation]
 ```
 
-# 3. split the training set to have a validation set for all the candidate models (Cross-validation)
+# 4. split the training set to have a validation set for all the candidate models (cross-validation)
 For each model I will measure the out of sample error that is the error rate you get on a new data set.
 The purpose of using a different data set than training is model checking. I want to validate how well the model got trained. 
 I will calculate the out of sample error by looking at the accuracy.
@@ -128,7 +125,7 @@ Larger number of folds means less bias but also more variance.
 cvControl <- trainControl(method="cv", repeats=5)
 ```
 
-# 4. train all competing models on the training data set using the CV folds method
+# 5. train all competing models on the training data set using the CV folds method
 
 ## Baseline for comparing accuracy
 The baseline is simply deciding randomly the classe category based on the frequency on the training set (classe A is 28% of the times, classe B is 19% and so on ...)
@@ -148,7 +145,7 @@ Using this coding, least squares could be used to fit a linear regression model 
 Logistic regression works for qualitative variables but when the output variable has more than two categories
 we need a different model:LDA.
 
-## 4.1. LDA (Linear Discriminant Analysis)
+## 5.1. LDA (Linear Discriminant Analysis)
 
 ```{r}
 modelLR <- train(classe ~ ., method="lda", trControl=cvControl, data=training)
@@ -158,22 +155,23 @@ accuracy <- sum(diag(confusion)) / nrow(validation)   # 0.56
 ```
 Accuracy is 0.56 (56% of the times is right) that is better than baseline.
 But LDA can also be used to reduce dimensions (like PCA but preserve the class discriminatory information). 
-In this case it returns 4 Linear Discriminants (instead of  the initial 30 predictors)
+In this case it returns four Linear Discriminants (instead of  the initial 30 predictors)
 
-## 4.2 decision tree model
-Train the model on all predictors using cross-validation.
+## 5.2 decision tree model
+Train the model on all predictors using cross-validation:
 
 ```{r}
 modTree <- train(classe ~ ., method="rpart", trControl = cvControl, data= training)
 print(modTree$finalModel)
 ```
-Trees are easy to interpret; the trained model uses this 6 predictors: roll_dumbbell, pitch_forearm, magnet_belt_z, roll_forearm, total_accel_dumbbell and gyros_belt_z
+Trees are easy to interpret; the trained model uses this 6 predictors: 
+roll_dumbbell, pitch_forearm, magnet_belt_z, roll_forearm, total_accel_dumbbell and gyros_belt_z
 
 ```{r}
 library(rpart.plot); prp(modTree$finalModel)
 ```
 
-Now let's validate the model on the validation data and calculate the accuracy
+Now let's validate the model on the validation data and calculate the accuracy:
 
 ```{r}
 predictions = predict(modTree, newdata = validation)
@@ -182,7 +180,7 @@ accuracy <- sum(diag(confusion)) / nrow(validation)   # 0.50
 ```
 Accuracy is 0.50 (50% of the times is right) that is worse than LDA but more interpretable.
 
-# 4.3  boosting
+# 5.3  boosting
 
 ```{r}
 modelGBM <- train(classe ~ ., data=training, method="gbm", trControl = cvControl, verbose=FALSE)
@@ -193,7 +191,7 @@ accuracy <- sum(diag(confusion)) / nrow(validation)
 ```
 Accuracy is 0.91, much higher
 
-# 4.4 random forest (= many trees :)
+# 5.4 random forest (= many trees :)
 
 ```{r}
 modelRF <- train(classe ~ ., data=training, method="rf", trControl = cvControl, ntree=250)
