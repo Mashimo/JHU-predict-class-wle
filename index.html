@@ -48,16 +48,18 @@ This is the “classe” variable in the data set: A - E<br />
 </ul>
 </p>
 
-<h3>
-<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<h2>
+<a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h2>
 
-<p>Massimo Albani for Coursera JHU, <a href="https://github.com/mashimo" class="user-mention">@mashimo</a> </p>
+<p>Massimo Albani for Coursera JHU, <a href="https://github.com/mashimo" class="user-mention">@mashimo</a><br>
+<a href="https://github.com/Mashimo/JHU-predict-class-wle">View the repository on GitHub</a></p>
 
 
 <div id="project-report" class="section level2">
 <h2>Project report</h2>
 <p>This report describes how I built the model, how I used cross validation, what I think the expected out of sample error is, and why I made the choices I did.</p>
-<p>The process for prediction is: population -&gt; probability and sampling to pick set of data -&gt; split into training and validation sets -&gt; build prediction models -&gt; evaluate and decide for one model -&gt; predict outcome using the test set</p>
+<p>The process for prediction is: <br>
+population -&gt; probability and sampling to pick set of data -&gt; split into training and validation sets -&gt; build prediction models -&gt; evaluate and decide for one model -&gt; predict outcome using the test set</p>
 </div>
 
 
@@ -80,7 +82,8 @@ qplot(user_name, classe, data=wleTrain)</code></pre>
 </div>
 <div id="features-extraction" class="section level1">
 <h1>3. features extraction</h1>
-<p>We need to identify the <strong>useful predictors</strong> among the 160 variables, depending on the question we want to answer: predict the manner the exercise has been performed.<br />Since the original test set is always available in the files, I will just drop columns from the data frames; both training and testing of course, they need to have the same structure.</p>
+<p>We need to identify the <strong>useful predictors</strong> among the 160 variables, depending on the question we want to answer: predict the manner the exercise has been performed.<br />
+Since the original test set is always available in the files, I will just drop columns from the data frames; both training and testing of course, they need to have the same structure.</p>
 <p>First of all, it’s clear from the summary above that the first six variables have no use:</p>
 <pre class="r"><code>library(caret)</code></pre>
 <pre><code>## Warning: package 'caret' was built under R version 3.1.3</code></pre>
@@ -95,7 +98,9 @@ wleTest  &lt;- wleTest[,7:length(colnames(wleTest))]</code></pre>
 nzvTrue &lt;- subset(nzv, nzv == &quot;TRUE&quot;)
 wleTrain &lt;- wleTrain[!(names(wleTrain) %in% rownames(nzvTrue))]
 wleTest  &lt;- wleTest[!(names(wleTest) %in% rownames(nzvTrue))]</code></pre>
-<p>From the summary above, some variables have missing values (NA).<br />We could substitute them with the average for that variable but there are many missing values and this is not improving the model accuracy (I tried).<br />Instead of less-accurate imputation of missing data, I just <strong>remove all predictors with NA values.</strong> Hard but fair …</p>
+<p>From the summary above, some variables have missing values (NA).<br />
+We could substitute them with the average for that variable but there are many missing values and this is not improving the model accuracy (I tried).<br />
+Instead of less-accurate imputation of missing data, I just <strong>remove all predictors with NA values.</strong> Hard but fair …</p>
 <pre class="r"><code>wleTrain &lt;- wleTrain[, colSums(is.na(wleTrain)) == 0]
 wleTest  &lt;- wleTest[, colSums(is.na(wleTest)) == 0]</code></pre>
 <p>Finally, with less predictors we can have a look at the correlations among them:</p>
@@ -110,7 +115,8 @@ wleTrain &lt;- wleTrain[,-highCorrelation]</code></pre>
 </div>
 <div id="split-the-training-set-to-have-a-validation-set-for-all-the-candidate-models-cross-validation" class="section level1">
 <h1>4. split the training set to have a validation set for all the candidate models (cross-validation)</h1>
-<p>For each model I will measure the out of sample error that is <strong>the error rate you get on a new data set</strong>.<br />The purpose of using a different data set than training is model checking. I want <strong>to validate how well the model got trained</strong>. I will calculate the out of sample error by looking at the <em>accuracy</em>.<br />Cross validation is useful for this because if you train using all the data you have, you have none left for this validation and out of sample error measurement. Remember that the test set has to be used as a rating on the final model and that it misses the classe variable so it cannot be used for validation. For this, I extract 20% of the training data:</p>
+<p>For each model I will measure the out of sample error that is <strong>the error rate you get on a new data set</strong>.<br />
+The purpose of using a different data set than training is model checking. I want <strong>to validate how well the model got trained</strong>. I will calculate the out of sample error by looking at the <em>accuracy</em>.<br />Cross validation is useful for this because if you train using all the data you have, you have none left for this validation and out of sample error measurement. Remember that the test set has to be used as a rating on the final model and that it misses the classe variable so it cannot be used for validation. For this, I extract 20% of the training data:</p>
 <pre class="r"><code>inTrainIndex &lt;- createDataPartition(wleTrain$classe, p=0.8, list=FALSE)
 training   &lt;- wleTrain[inTrainIndex,]  # 80% is for training
 validation &lt;- wleTrain[-inTrainIndex,] # 20% is for validation out of sample</code></pre>
