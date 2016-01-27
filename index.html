@@ -32,16 +32,26 @@
 
         <section id="main_content">
           <h3>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to the project WLE.</h3>
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"
+><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to the project WLE.</h3>
 
 <h1>Project goal</h1>
 <p>In this project will use data from accelerometers on the belt, forearm, arm and dumbell of 6 participants.<br />They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.</p>
-<p>The goal of the project is <strong>to predict the manner in which they did the exercise.</strong> This is the “classe” variable in the data set: A - E<br />* exactly according to the specification (Class A), * throwing the elbows to the front (Class B), * lifting the dumbbell only halfway (Class C), * lowering the dumbbell only halfway (Class D) * throwing the hips to the front (Class E).</p>
+<p>The goal of the project is <strong>to predict the manner in which they did the exercise.</strong> 
+This is the “classe” variable in the data set: A - E<br />
+<ul>
+  <li>exactly according to the specification (Class A)</li>
+  <li>throwing the elbows to the front (Class B)</li>
+  <li>lifting the dumbbell only halfway (Class C)</li>
+  <li>lowering the dumbbell only halfway (Class D)</li>
+  <li>throwing the hips to the front (Class E).</li>
+</ul>
+</p>
+
 <div id="project-report" class="section level2">
 <h2>Project report</h2>
 <p>This report describes how I built the model, how I used cross validation, what I think the expected out of sample error is, and why I made the choices I did.</p>
 <p>The process for prediction is: population -&gt; probability and sampling to pick set of data -&gt; split into training and validation sets -&gt; build prediction models -&gt; evaluate and decide for one model -&gt; predict outcome using the test set</p>
-</div>
 </div>
 <div id="pick-set-of-data" class="section level1">
 <h1>1. Pick set of data</h1>
