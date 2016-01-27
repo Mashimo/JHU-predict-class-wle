@@ -32,7 +32,10 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h2>
-<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to the project WLE.</h3>
+<a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
+  <span aria-hidden="true" class="octicon octicon-link">
+  </span></a>Welcome to the project WLE.</h2>
+</div>
 
 <p>In this project will use data from accelerometers on the belt, forearm, arm and dumbell of 6 participants.<br />They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.</p>
 <p>The goal of the project is <strong>to predict the manner in which they did the exercise.</strong>
@@ -54,8 +57,7 @@
 <p>This report describes how I built the model, how I used cross validation, what I think the expected out of sample error is, and why I made the choices I did.</p>
 <p>The process for prediction is:<br>
 population -&gt; probability and sampling to pick set of data -&gt; split into training and validation sets -&gt; build prediction models -&gt; evaluate and decide for one model -&gt; predict outcome using the test set</p>
-</div>
-</div>
+
 <h1>1. Pick set of data</h1>
 <p>The sample data sets are stored in two files. Read all the files into appropriate data frames:</p>
 <pre class="r"><code>setwd(&quot;~/Documents/corsi/data-science-specialization/07ml&quot;)
